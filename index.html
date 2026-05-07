@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistem Jersey — Preview & Input Data</title>
+<title>CSS Sportwear Mowewe — Preview & Input Data</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -50,9 +50,9 @@
   }
 
   header h1 {
-    font-size: 1.6rem;
+    font-size: 2.4rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     color: var(--accent);
   }
 
@@ -423,7 +423,7 @@
 
   <header>
     <div>
-      <h1>Sistem Jersey</h1>
+      <h1>CSS Sportwear Mowewe</h1>
       <p>Upload template → Setting posisi → Input data → Preview & Download</p>
     </div>
     <span class="step-badge">VERSI TES</span>
@@ -521,7 +521,12 @@
   <div class="section" id="sec2">
     <div class="section-header">
       <div class="section-num">2</div>
-      <span class="section-title">Input Data Pemain</span>
+      <span class="section-title">Input Data</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.25rem;">
+      <label style="font-size:0.82rem; color:var(--text2); font-family:'DM Mono',monospace; white-space:nowrap;">JUMLAH JERSEY</label>
+      <input type="number" id="jumlahJersey" min="1" max="100" placeholder="Masukkan jumlah..." style="max-width:180px;" oninput="generateRows()">
     </div>
 
     <div style="overflow-x:auto;">
@@ -529,7 +534,7 @@
         <thead>
           <tr>
             <th style="width:36px;">#</th>
-            <th>NAMA PEMAIN</th>
+            <th>NAMA</th>
             <th style="width:90px;">NOMOR</th>
             <th style="width:130px;">UKURAN</th>
             <th style="width:44px;"></th>
@@ -539,22 +544,20 @@
         </tbody>
       </table>
     </div>
-
-    <button class="btn btn-add" onclick="addRow()">+ Tambah Pemain</button>
   </div>
 
   <!-- STEP 3: Preview -->
   <div class="section" id="sec3">
     <div class="section-header">
       <div class="section-num">3</div>
-      <span class="section-title">Preview Per Pemain</span>
+      <span class="section-title">Preview Per Data</span>
       <span id="previewStatus" class="tag tag-warn" style="margin-left:auto;">Belum ada data</span>
     </div>
 
     <div id="previewGrid" class="preview-grid">
       <div class="empty-state">
         <div class="big">👕</div>
-        <p>Upload template dan isi data pemain dulu,<br>lalu klik "Generate Preview"</p>
+        <p>Upload template dan isi data dulu,<br>lalu klik "Generate Preview"</p>
       </div>
     </div>
 
@@ -590,7 +593,7 @@
     tr.id = `row-${n}`;
     tr.innerHTML = `
       <td style="color:var(--text2);font-family:'DM Mono',monospace;font-size:0.75rem;">${String(rowCount).padStart(2,'0')}</td>
-      <td><input type="text" placeholder="Nama pemain" value="${nama}" class="nama-input"></td>
+      <td><input type="text" placeholder="Nama" value="${nama}" class="nama-input"></td>
       <td><input type="number" placeholder="No." min="1" max="99" value="${nomor}" class="nomor-input" style="width:100%;"></td>
       <td>
         <select class="ukuran-input">${makeSizeOptions(ukuran)}</select>
@@ -602,14 +605,19 @@
     document.getElementById('tableBody').appendChild(tr);
   }
 
+  function generateRows() {
+    const jumlah = parseInt(document.getElementById('jumlahJersey').value);
+    if (!jumlah || jumlah < 1) return;
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    rowCount = 0;
+    for (let i = 0; i < jumlah; i++) addRow();
+  }
+
   function removeRow(n) {
     const el = document.getElementById(`row-${n}`);
     if (el) el.remove();
   }
-
-  addRow('Budi Santoso','10','L');
-  addRow('Andi Pratama','7','XL');
-  addRow('Rizky Firmansyah','9','M');
 
   const fileInput = document.getElementById('fileInput');
   const uploadZone = document.getElementById('uploadZone');
