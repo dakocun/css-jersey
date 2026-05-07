@@ -580,7 +580,8 @@
   const SIZES = ['S','M','L','XL','XXL','XXXL','S-Anak','M-Anak','L-Anak','XL-Anak'];
 
   function makeSizeOptions(selected) {
-    return SIZES.map(s =>
+    const empty = `<option value="" ${!selected ? 'selected' : ''} disabled>— Pilih ukuran —</option>`;
+    return empty + SIZES.map(s =>
       `<option value="${s}" ${s === selected ? 'selected' : ''}>${s}</option>`
     ).join('');
   }
@@ -611,7 +612,7 @@
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
     rowCount = 0;
-    for (let i = 0; i < jumlah; i++) addRow();
+    for (let i = 0; i < jumlah; i++) addRow('', '', '');
   }
 
   function removeRow(n) {
