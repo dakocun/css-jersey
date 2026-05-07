@@ -341,6 +341,13 @@
     border: 0.5px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+
+  .preview-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent2);
   }
 
   .preview-card canvas {
@@ -409,6 +416,69 @@
 
   .tag-ok { background: rgba(92,184,138,0.15); color: var(--success); }
   .tag-warn { background: rgba(232,213,163,0.12); color: var(--accent); }
+
+  /* Modal lightbox */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    backdrop-filter: blur(6px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-lg);
+    max-width: 600px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    animation: modalIn 0.2s ease;
+  }
+
+  @keyframes modalIn {
+    from { transform: scale(0.94); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-box canvas {
+    width: 100%;
+    display: block;
+  }
+
+  .modal-footer {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 0.5px solid var(--border);
+  }
+
+  .modal-info-name { font-size: 0.95rem; font-weight: 600; }
+  .modal-info-detail { font-size: 0.78rem; color: var(--text2); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+  .modal-close {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    color: #fff;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .modal-close:hover { background: rgba(0,0,0,0.8); }
 
   .divider { border: none; border-top: 0.5px solid var(--border); margin: 1.25rem 0; }
 
@@ -573,7 +643,20 @@
 
 </div>
 
-<script>
+<!-- Modal Lightbox -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <canvas id="modalCanvas"></canvas>
+    <div class="modal-footer">
+      <div>
+        <div class="modal-info-name" id="modalName"></div>
+        <div class="modal-info-detail" id="modalDetail"></div>
+      </div>
+      <button class="preview-card-dl" id="modalDlBtn">⬇ PNG</button>
+    </div>
+  </div>
+</div>
   let jerseyImg = null;
   let previewCanvases = [];
 
@@ -668,54 +751,62 @@
   function drawJersey(canvas, imgSrc, name, number, settings) {
     const img = imgSrc || jerseyImg;
     if (!img) return;
+    const dpr = window.devicePixelRatio || 1;
     const ratio = img.naturalWidth / img.naturalHeight;
-    const W = canvas.offsetWidth || 400;
-    const H = W / ratio;
-    canvas.width = W;
-    canvas.height = H;
+    const cssW = canvas.offsetWidth || 400;
+    const cssH = cssW / ratio;
+
+    // Set actual canvas size in pixels (sharp on retina/HiDPI)
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(img, 0, 0, W, H);
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cssW, cssH);
+    ctx.drawImage(img, 0, 0, cssW, cssH);
+
     const s = settings || getSettings();
+    const scale = cssW / 400;
 
     if (name) {
-      ctx.font = `bold ${Math.round(s.nameSz * (W/400))}px "${s.nameFont}", Impact, sans-serif`;
+      ctx.font = `bold ${Math.round(s.nameSz * scale)}px "${s.nameFont}", Impact, sans-serif`;
       ctx.fillStyle = s.nameColor;
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-      ctx.lineWidth = Math.max(1, s.nameSz * 0.04 * (W/400));
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.lineWidth = Math.max(1, s.nameSz * 0.05 * scale);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      const nx = W * s.nameX / 100;
-      const ny = H * s.nameY / 100;
-      ctx.strokeText(name.toUpperCase(), nx, ny);
-      ctx.fillText(name.toUpperCase(), nx, ny);
+      ctx.strokeText(name.toUpperCase(), cssW * s.nameX / 100, cssH * s.nameY / 100);
+      ctx.fillText(name.toUpperCase(), cssW * s.nameX / 100, cssH * s.nameY / 100);
     }
 
     if (number) {
-      ctx.font = `bold ${Math.round(s.numSz * (W/400))}px "${s.numFont}", Impact, sans-serif`;
+      ctx.font = `bold ${Math.round(s.numSz * scale)}px "${s.numFont}", Impact, sans-serif`;
       ctx.fillStyle = s.numColor;
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-      ctx.lineWidth = Math.max(1, s.numSz * 0.04 * (W/400));
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.lineWidth = Math.max(1, s.numSz * 0.05 * scale);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      const mx = W * s.numX / 100;
-      const my = H * s.numY / 100;
-      ctx.strokeText(String(number), mx, my);
-      ctx.fillText(String(number), mx, my);
+      ctx.strokeText(String(number), cssW * s.numX / 100, cssH * s.numY / 100);
+      ctx.fillText(String(number), cssW * s.numX / 100, cssH * s.numY / 100);
     }
   }
 
   function renderPreviewTemplate() {
     const canvas = document.getElementById('jerseyCanvas');
     if (!jerseyImg) return;
+    const dpr = window.devicePixelRatio || 1;
     const ratio = jerseyImg.naturalWidth / jerseyImg.naturalHeight;
-    const W = canvas.parentElement.offsetWidth || 600;
-    const H = Math.min(W / ratio, 420);
-    canvas.style.maxHeight = H + 'px';
-    canvas.width = W;
-    canvas.height = W / ratio;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(jerseyImg, 0, 0, canvas.width, canvas.height);
+    const cssW = canvas.parentElement.offsetWidth || 600;
+    const cssH = cssW / ratio;
+
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    canvas.style.maxHeight = '420px';
+
     drawJersey(canvas, jerseyImg, 'NAMA', '10', getSettings());
   }
 
@@ -763,6 +854,7 @@
     rows.forEach((r, i) => {
       const card = document.createElement('div');
       card.className = 'preview-card';
+      card.onclick = () => openModal(i);
 
       const canvas = document.createElement('canvas');
       canvas.style.width = '100%';
@@ -782,7 +874,7 @@
 
       setTimeout(() => {
         drawJersey(canvas, jerseyImg, r.nama, r.nomor, settings);
-        previewCanvases.push({ canvas, nama: r.nama, nomor: r.nomor });
+        previewCanvases.push({ canvas, nama: r.nama, nomor: r.nomor, ukuran: r.ukuran, settings });
       }, i * 30);
     });
 
@@ -794,9 +886,45 @@
   function downloadOne(i) {
     const item = previewCanvases[i];
     if (!item) return;
+
+    // Render ulang dengan resolusi penuh dari gambar asli
+    const img = jerseyImg;
+    const fullCanvas = document.createElement('canvas');
+    fullCanvas.width = img.naturalWidth;
+    fullCanvas.height = img.naturalHeight;
+    const ctx = fullCanvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+
+    const s = item.settings;
+    const W = img.naturalWidth;
+    const H = img.naturalHeight;
+    const scale = W / 400;
+
+    if (item.nama && item.nama !== '-') {
+      ctx.font = `bold ${Math.round(s.nameSz * scale)}px "${s.nameFont}", Impact, sans-serif`;
+      ctx.fillStyle = s.nameColor;
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.lineWidth = Math.max(2, s.nameSz * 0.05 * scale);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.strokeText(item.nama.toUpperCase(), W * s.nameX / 100, H * s.nameY / 100);
+      ctx.fillText(item.nama.toUpperCase(), W * s.nameX / 100, H * s.nameY / 100);
+    }
+
+    if (item.nomor && item.nomor !== '-') {
+      ctx.font = `bold ${Math.round(s.numSz * scale)}px "${s.numFont}", Impact, sans-serif`;
+      ctx.fillStyle = s.numColor;
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.lineWidth = Math.max(2, s.numSz * 0.05 * scale);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.strokeText(String(item.nomor), W * s.numX / 100, H * s.numY / 100);
+      ctx.fillText(String(item.nomor), W * s.numX / 100, H * s.numY / 100);
+    }
+
     const link = document.createElement('a');
     link.download = `Jersey_${item.nama}_${item.nomor}.png`;
-    link.href = item.canvas.toDataURL('image/png');
+    link.href = fullCanvas.toDataURL('image/png');
     link.click();
   }
 
@@ -805,6 +933,76 @@
       setTimeout(() => downloadOne(i), i * 200);
     });
   }
+
+  let modalIndex = -1;
+
+  function openModal(i) {
+    modalIndex = i;
+    const item = previewCanvases[i];
+    if (!item) return;
+
+    const overlay = document.getElementById('modalOverlay');
+    const canvas = document.getElementById('modalCanvas');
+    overlay.classList.add('open');
+
+    document.getElementById('modalName').textContent = item.nama;
+    document.getElementById('modalDetail').textContent = `#${item.nomor} · ${item.ukuran}`;
+    document.getElementById('modalDlBtn').onclick = () => downloadOne(i);
+
+    // Render di modal canvas dengan lebar penuh modal (max 568px)
+    const maxW = Math.min(window.innerWidth - 48, 568);
+    const img = jerseyImg;
+    const ratio = img.naturalWidth / img.naturalHeight;
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = maxW;
+    const cssH = cssW / ratio;
+
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.drawImage(img, 0, 0, cssW, cssH);
+
+    const s = item.settings;
+    const scale = cssW / 400;
+
+    if (item.nama && item.nama !== '-') {
+      ctx.font = `bold ${Math.round(s.nameSz * scale)}px "${s.nameFont}", Impact, sans-serif`;
+      ctx.fillStyle = s.nameColor;
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.lineWidth = Math.max(1, s.nameSz * 0.05 * scale);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.strokeText(item.nama.toUpperCase(), cssW * s.nameX / 100, cssH * s.nameY / 100);
+      ctx.fillText(item.nama.toUpperCase(), cssW * s.nameX / 100, cssH * s.nameY / 100);
+    }
+
+    if (item.nomor && item.nomor !== '-') {
+      ctx.font = `bold ${Math.round(s.numSz * scale)}px "${s.numFont}", Impact, sans-serif`;
+      ctx.fillStyle = s.numColor;
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.lineWidth = Math.max(1, s.numSz * 0.05 * scale);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.strokeText(String(item.nomor), cssW * s.numX / 100, cssH * s.numY / 100);
+      ctx.fillText(String(item.nomor), cssW * s.numX / 100, cssH * s.numY / 100);
+    }
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+  }
+
+  function closeModalDirect() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModalDirect();
+  });
 </script>
 </body>
 </html>
