@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Jersey — Preview & Input Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #181818;
+    --surface2: #222222;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #f0ede8;
+    --text2: #888580;
+    --accent: #e8d5a3;
+    --accent2: #c4a96b;
+    --danger: #e05c5c;
+    --success: #5cb88a;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+    border-bottom: 0.5px solid var(--border2);
+    padding-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+
+  header p {
+    font-size: 0.82rem;
+    color: var(--text2);
+    font-family: 'DM Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .step-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  .section {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent2);
+    color: #111;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .upload-zone {
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 2.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent2);
+    background: rgba(196,169,107,0.05);
+  }
+
+  .upload-zone input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-zone .icon {
+    font-size: 2rem;
+    color: var(--text2);
+    margin-bottom: 0.5rem;
+  }
+
+  .upload-zone p {
+    font-size: 0.85rem;
+    color: var(--text2);
+  }
+
+  .upload-zone strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .canvas-wrap {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+  #jerseyCanvas {
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    display: block;
+  }
+
+  .font-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .control-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text2);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  .control-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  input[type=range] {
+    flex: 1;
+    accent-color: var(--accent2);
+    height: 4px;
+    min-width: 60px;
+  }
+
+  input[type=color] {
+    width: 36px;
+    height: 36px;
+    border: 0.5px solid var(--border2);
+    border-radius: 6px;
+    background: var(--surface2);
+    cursor: pointer;
+    padding: 2px;
+  }
+
+  input[type=text], input[type=number], select {
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    padding: 8px 10px;
+    width: 100%;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  input[type=text]:focus, input[type=number]:focus, select:focus {
+    border-color: var(--accent2);
+  }
+
+  select option { background: #222; }
+
+  .val-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  .pos-hint {
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-top: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 0.5px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    text-align: left;
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--text2);
+    letter-spacing: 0.06em;
+    padding: 0 8px 10px;
+    border-bottom: 0.5px solid var(--border2);
+  }
+
+  tbody tr { border-bottom: 0.5px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody td {
+    padding: 8px;
+    vertical-align: middle;
+  }
+
+  tbody td input, tbody td select {
+    padding: 7px 10px;
+    font-size: 0.82rem;
+  }
+
+  .btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn:active { transform: scale(0.97); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+  }
+
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+  .btn-accent {
+    background: var(--accent2);
+    color: #111;
+    border-color: var(--accent2);
+  }
+
+  .btn-accent:hover { background: var(--accent); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border-color: transparent;
+    padding: 6px 8px;
+  }
+
+  .btn-danger:hover { background: rgba(224,92,92,0.1); }
+
+  .btn-add {
+    background: transparent;
+    color: var(--accent);
+    border-color: var(--border2);
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-add:hover { background: rgba(232,213,163,0.06); }
+
+  .action-bar {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .preview-card {
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .preview-card canvas {
+    width: 100%;
+    display: block;
+  }
+
+  .preview-card-info {
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .preview-card-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .preview-card-detail {
+    font-size: 0.72rem;
+    color: var(--text2);
+    font-family: 'DM Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .preview-card-dl {
+    background: transparent;
+    border: 0.5px solid var(--border2);
+    border-radius: 6px;
+    color: var(--accent);
+    font-size: 0.75rem;
+    padding: 5px 9px;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .preview-card-dl:hover { background: rgba(232,213,163,0.1); }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text2);
+    font-size: 0.85rem;
+  }
+
+  .empty-state .big {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.3;
+  }
+
+  .tag {
+    font-size: 0.68rem;
+    font-family: 'DM Mono', monospace;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.04em;
+  }
+
+  .tag-ok { background: rgba(92,184,138,0.15); color: var(--success); }
+  .tag-warn { background: rgba(232,213,163,0.12); color: var(--accent); }
+
+  .divider { border: none; border-top: 0.5px solid var(--border); margin: 1.25rem 0; }
+
+  @media (max-width: 600px) {
+    .font-controls { grid-template-columns: 1fr; }
+    .preview-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div>
+      <h1>Sistem Jersey</h1>
+      <p>Upload template → Setting posisi → Input data → Preview & Download</p>
+    </div>
+    <span class="step-badge">VERSI TES</span>
+  </header>
+
+  <!-- STEP 1: Upload Template -->
+  <div class="section" id="sec1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <span class="section-title">Upload Template Jersey</span>
+    </div>
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp">
+      <div class="icon">⬆</div>
+      <p><strong>Klik atau drag & drop</strong> gambar jersey di sini</p>
+      <p style="margin-top:4px; font-size:0.75rem;">PNG / JPG — hasil export dari CorelDRAW</p>
+    </div>
+
+    <div id="canvasArea" style="display:none; margin-top:1.25rem;">
+      <div class="canvas-wrap">
+        <canvas id="jerseyCanvas"></canvas>
+      </div>
+
+      <hr class="divider">
+
+      <div class="font-controls">
+        <div class="control-group">
+          <label>POSISI NAMA (Y%) — geser atas/bawah</label>
+          <div class="control-row">
+            <input type="range" id="nameY" min="1" max="99" value="65" step="1">
+            <span class="val-label" id="nameYVal">65%</span>
+          </div>
+          <div class="control-row" style="margin-top:8px;">
+            <input type="range" id="nameX" min="1" max="99" value="50" step="1">
+            <span class="val-label" id="nameXVal" style="min-width:40px;">X: 50%</span>
+          </div>
+        </div>
+        <div class="control-group">
+          <label>POSISI NOMOR (Y%) — geser atas/bawah</label>
+          <div class="control-row">
+            <input type="range" id="numY" min="1" max="99" value="50" step="1">
+            <span class="val-label" id="numYVal">50%</span>
+          </div>
+          <div class="control-row" style="margin-top:8px;">
+            <input type="range" id="numX" min="1" max="99" value="50" step="1">
+            <span class="val-label" id="numXVal" style="min-width:40px;">X: 50%</span>
+          </div>
+        </div>
+        <div class="control-group">
+          <label>UKURAN FONT NAMA</label>
+          <div class="control-row">
+            <input type="range" id="nameSz" min="12" max="120" value="40" step="1">
+            <span class="val-label" id="nameSzVal">40px</span>
+            <input type="color" id="nameColor" value="#ffffff" title="Warna nama">
+          </div>
+        </div>
+        <div class="control-group">
+          <label>UKURAN FONT NOMOR</label>
+          <div class="control-row">
+            <input type="range" id="numSz" min="12" max="180" value="60" step="1">
+            <span class="val-label" id="numSzVal">60px</span>
+            <input type="color" id="numColor" value="#ffffff" title="Warna nomor">
+          </div>
+        </div>
+        <div class="control-group">
+          <label>FONT NAMA</label>
+          <select id="nameFont">
+            <option value="Impact">Impact</option>
+            <option value="Arial Black">Arial Black</option>
+            <option value="Bebas Neue">Bebas Neue</option>
+            <option value="Arial">Arial</option>
+            <option value="Oswald">Oswald</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>FONT NOMOR</label>
+          <select id="numFont">
+            <option value="Impact">Impact</option>
+            <option value="Arial Black">Arial Black</option>
+            <option value="Bebas Neue">Bebas Neue</option>
+            <option value="Arial">Arial</option>
+            <option value="Oswald">Oswald</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pos-hint">
+        💡 Atur posisi & ukuran teks sampai sesuai dengan template jerseynya. Preview di bawah akan menggunakan setting ini.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Input Data -->
+  <div class="section" id="sec2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <span class="section-title">Input Data Pemain</span>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th style="width:36px;">#</th>
+            <th>NAMA PEMAIN</th>
+            <th style="width:90px;">NOMOR</th>
+            <th style="width:130px;">UKURAN</th>
+            <th style="width:44px;"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <button class="btn btn-add" onclick="addRow()">+ Tambah Pemain</button>
+  </div>
+
+  <!-- STEP 3: Preview -->
+  <div class="section" id="sec3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <span class="section-title">Preview Per Pemain</span>
+      <span id="previewStatus" class="tag tag-warn" style="margin-left:auto;">Belum ada data</span>
+    </div>
+
+    <div id="previewGrid" class="preview-grid">
+      <div class="empty-state">
+        <div class="big">👕</div>
+        <p>Upload template dan isi data pemain dulu,<br>lalu klik "Generate Preview"</p>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-ghost" onclick="downloadAllPreviews()" id="btnDlAll" style="display:none;">
+        ⬇ Download Semua PNG
+      </button>
+      <button class="btn btn-accent" onclick="generatePreviews()">
+        ▶ Generate Preview
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let jerseyImg = null;
+  let previewCanvases = [];
+
+  const SIZES = ['S','M','L','XL','XXL','XXXL','S-Anak','M-Anak','L-Anak','XL-Anak'];
+
+  function makeSizeOptions(selected) {
+    return SIZES.map(s =>
+      `<option value="${s}" ${s === selected ? 'selected' : ''}>${s}</option>`
+    ).join('');
+  }
+
+  let rowCount = 0;
+  function addRow(nama='', nomor='', ukuran='L') {
+    rowCount++;
+    const n = rowCount;
+    const tr = document.createElement('tr');
+    tr.id = `row-${n}`;
+    tr.innerHTML = `
+      <td style="color:var(--text2);font-family:'DM Mono',monospace;font-size:0.75rem;">${String(rowCount).padStart(2,'0')}</td>
+      <td><input type="text" placeholder="Nama pemain" value="${nama}" class="nama-input"></td>
+      <td><input type="number" placeholder="No." min="1" max="99" value="${nomor}" class="nomor-input" style="width:100%;"></td>
+      <td>
+        <select class="ukuran-input">${makeSizeOptions(ukuran)}</select>
+      </td>
+      <td>
+        <button class="btn btn-danger" onclick="removeRow(${n})" title="Hapus">✕</button>
+      </td>
+    `;
+    document.getElementById('tableBody').appendChild(tr);
+  }
+
+  function removeRow(n) {
+    const el = document.getElementById(`row-${n}`);
+    if (el) el.remove();
+  }
+
+  addRow('Budi Santoso','10','L');
+  addRow('Andi Pratama','7','XL');
+  addRow('Rizky Firmansyah','9','M');
+
+  const fileInput = document.getElementById('fileInput');
+  const uploadZone = document.getElementById('uploadZone');
+
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f) loadImage(f);
+  });
+
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) loadImage(e.target.files[0]);
+  });
+
+  function loadImage(file) {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        jerseyImg = img;
+        document.getElementById('canvasArea').style.display = 'block';
+        renderPreviewTemplate();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function getSettings() {
+    return {
+      nameY: parseInt(document.getElementById('nameY').value),
+      nameX: parseInt(document.getElementById('nameX').value),
+      numY: parseInt(document.getElementById('numY').value),
+      numX: parseInt(document.getElementById('numX').value),
+      nameSz: parseInt(document.getElementById('nameSz').value),
+      numSz: parseInt(document.getElementById('numSz').value),
+      nameColor: document.getElementById('nameColor').value,
+      numColor: document.getElementById('numColor').value,
+      nameFont: document.getElementById('nameFont').value,
+      numFont: document.getElementById('numFont').value,
+    };
+  }
+
+  function drawJersey(canvas, imgSrc, name, number, settings) {
+    const img = imgSrc || jerseyImg;
+    if (!img) return;
+    const ratio = img.naturalWidth / img.naturalHeight;
+    const W = canvas.offsetWidth || 400;
+    const H = W / ratio;
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(img, 0, 0, W, H);
+    const s = settings || getSettings();
+
+    if (name) {
+      ctx.font = `bold ${Math.round(s.nameSz * (W/400))}px "${s.nameFont}", Impact, sans-serif`;
+      ctx.fillStyle = s.nameColor;
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = Math.max(1, s.nameSz * 0.04 * (W/400));
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const nx = W * s.nameX / 100;
+      const ny = H * s.nameY / 100;
+      ctx.strokeText(name.toUpperCase(), nx, ny);
+      ctx.fillText(name.toUpperCase(), nx, ny);
+    }
+
+    if (number) {
+      ctx.font = `bold ${Math.round(s.numSz * (W/400))}px "${s.numFont}", Impact, sans-serif`;
+      ctx.fillStyle = s.numColor;
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = Math.max(1, s.numSz * 0.04 * (W/400));
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const mx = W * s.numX / 100;
+      const my = H * s.numY / 100;
+      ctx.strokeText(String(number), mx, my);
+      ctx.fillText(String(number), mx, my);
+    }
+  }
+
+  function renderPreviewTemplate() {
+    const canvas = document.getElementById('jerseyCanvas');
+    if (!jerseyImg) return;
+    const ratio = jerseyImg.naturalWidth / jerseyImg.naturalHeight;
+    const W = canvas.parentElement.offsetWidth || 600;
+    const H = Math.min(W / ratio, 420);
+    canvas.style.maxHeight = H + 'px';
+    canvas.width = W;
+    canvas.height = W / ratio;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(jerseyImg, 0, 0, canvas.width, canvas.height);
+    drawJersey(canvas, jerseyImg, 'NAMA', '10', getSettings());
+  }
+
+  ['nameY','nameX','numY','numX','nameSz','numSz','nameColor','numColor','nameFont','numFont'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const v = el.value;
+      if (id === 'nameY') { document.getElementById('nameYVal').textContent = v + '%'; }
+      if (id === 'nameX') { document.getElementById('nameXVal').textContent = 'X: ' + v + '%'; }
+      if (id === 'numY') { document.getElementById('numYVal').textContent = v + '%'; }
+      if (id === 'numX') { document.getElementById('numXVal').textContent = 'X: ' + v + '%'; }
+      if (id === 'nameSz') { document.getElementById('nameSzVal').textContent = v + 'px'; }
+      if (id === 'numSz') { document.getElementById('numSzVal').textContent = v + 'px'; }
+      if (jerseyImg) renderPreviewTemplate();
+    });
+  });
+
+  function getRows() {
+    const rows = [];
+    document.querySelectorAll('#tableBody tr').forEach(tr => {
+      const nama = tr.querySelector('.nama-input')?.value?.trim();
+      const nomor = tr.querySelector('.nomor-input')?.value?.trim();
+      const ukuran = tr.querySelector('.ukuran-input')?.value;
+      if (nama || nomor) rows.push({ nama: nama || '-', nomor: nomor || '-', ukuran });
+    });
+    return rows;
+  }
+
+  function generatePreviews() {
+    if (!jerseyImg) {
+      alert('Upload template jersey dulu ya!');
+      return;
+    }
+    const rows = getRows();
+    if (rows.length === 0) {
+      alert('Isi data pemain dulu!');
+      return;
+    }
+    const settings = getSettings();
+    const grid = document.getElementById('previewGrid');
+    grid.innerHTML = '';
+    previewCanvases = [];
+
+    rows.forEach((r, i) => {
+      const card = document.createElement('div');
+      card.className = 'preview-card';
+
+      const canvas = document.createElement('canvas');
+      canvas.style.width = '100%';
+      card.appendChild(canvas);
+
+      const info = document.createElement('div');
+      info.className = 'preview-card-info';
+      info.innerHTML = `
+        <div>
+          <div class="preview-card-name">${r.nama}</div>
+          <div class="preview-card-detail">#${r.nomor} · ${r.ukuran}</div>
+        </div>
+        <button class="preview-card-dl" onclick="downloadOne(${i})">⬇ PNG</button>
+      `;
+      card.appendChild(info);
+      grid.appendChild(card);
+
+      setTimeout(() => {
+        drawJersey(canvas, jerseyImg, r.nama, r.nomor, settings);
+        previewCanvases.push({ canvas, nama: r.nama, nomor: r.nomor });
+      }, i * 30);
+    });
+
+    document.getElementById('previewStatus').textContent = rows.length + ' pemain';
+    document.getElementById('previewStatus').className = 'tag tag-ok';
+    document.getElementById('btnDlAll').style.display = 'inline-flex';
+  }
+
+  function downloadOne(i) {
+    const item = previewCanvases[i];
+    if (!item) return;
+    const link = document.createElement('a');
+    link.download = `Jersey_${item.nama}_${item.nomor}.png`;
+    link.href = item.canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  function downloadAllPreviews() {
+    previewCanvases.forEach((item, i) => {
+      setTimeout(() => downloadOne(i), i * 200);
+    });
+  }
+</script>
+</body>
+</html>
