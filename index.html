@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CSS Sportwear Mowewe — Preview & Input Data</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&family=Bebas+Neue&family=Oswald:wght@400;700&family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;700;900&family=Black+Han+Sans&family=Boogaloo&family=Chakra+Petch:wght@400;700&family=Crimson+Pro:wght@700&family=Exo+2:wght@400;700;900&family=Fjalla+One&family=Gruppo&family=Iceberg&family=Kanit:wght@400;700;900&family=Lalezar&family=Lato:wght@400;700;900&family=Libre+Barcode+39+Text&family=Lilita+One&family=Lobster&family=Londrina+Solid&family=Michroma&family=Montserrat:wght@400;700;900&family=Nova+Square&family=Orbitron:wght@400;700;900&family=Oxanium:wght@400;700;800&family=Permanent+Marker&family=Play:wght@400;700&family=Playfair+Display:wght@700;900&family=Poppins:wght@400;700;900&family=Press+Start+2P&family=Rajdhani:wght@400;700&family=Raleway:wght@400;700;900&family=Roboto+Condensed:wght@400;700&family=Russo+One&family=Saira+Condensed:wght@400;700;900&family=Squada+One&family=Staatliches&family=Teko:wght@400;700&family=Titan+One&family=Tourney:wght@400;700;900&family=Unica+One&family=Varela+Round&family=Wallpoet&family=Yatra+One&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -561,22 +561,122 @@
         </div>
         <div class="control-group">
           <label>FONT NAMA</label>
-          <select id="nameFont">
-            <option value="Impact">Impact</option>
-            <option value="Arial Black">Arial Black</option>
-            <option value="Bebas Neue">Bebas Neue</option>
-            <option value="Arial">Arial</option>
-            <option value="Oswald">Oswald</option>
+          <select id="nameFont" onchange="renderPreviewTemplate()">
+            <optgroup label="— Sport / Bold —">
+              <option value="Impact">Impact</option>
+              <option value="Bebas Neue">Bebas Neue</option>
+              <option value="Russo One">Russo One</option>
+              <option value="Barlow Condensed" style="font-weight:900;">Barlow Condensed</option>
+              <option value="Saira Condensed">Saira Condensed</option>
+              <option value="Squada One">Squada One</option>
+              <option value="Fjalla One">Fjalla One</option>
+              <option value="Teko">Teko</option>
+              <option value="Rajdhani">Rajdhani</option>
+              <option value="Kanit">Kanit</option>
+              <option value="Staatliches">Staatliches</option>
+              <option value="Titan One">Titan One</option>
+              <option value="Lilita One">Lilita One</option>
+              <option value="Tourney">Tourney</option>
+            </optgroup>
+            <optgroup label="— Tech / Futuristik —">
+              <option value="Orbitron">Orbitron</option>
+              <option value="Michroma">Michroma</option>
+              <option value="Oxanium">Oxanium</option>
+              <option value="Chakra Petch">Chakra Petch</option>
+              <option value="Exo 2">Exo 2</option>
+              <option value="Nova Square">Nova Square</option>
+              <option value="Iceberg">Iceberg</option>
+              <option value="Wallpoet">Wallpoet</option>
+              <option value="Play">Play</option>
+            </optgroup>
+            <optgroup label="— Modern / Clean —">
+              <option value="Montserrat">Montserrat</option>
+              <option value="Poppins">Poppins</option>
+              <option value="Raleway">Raleway</option>
+              <option value="Lato">Lato</option>
+              <option value="Barlow">Barlow</option>
+              <option value="Roboto Condensed">Roboto Condensed</option>
+              <option value="Oswald">Oswald</option>
+              <option value="Varela Round">Varela Round</option>
+              <option value="Unica One">Unica One</option>
+            </optgroup>
+            <optgroup label="— Display / Dekoratif —">
+              <option value="Lobster">Lobster</option>
+              <option value="Permanent Marker">Permanent Marker</option>
+              <option value="Boogaloo">Boogaloo</option>
+              <option value="Londrina Solid">Londrina Solid</option>
+              <option value="Lalezar">Lalezar</option>
+              <option value="Black Han Sans">Black Han Sans</option>
+              <option value="Gruppo">Gruppo</option>
+              <option value="Yatra One">Yatra One</option>
+              <option value="Press Start 2P">Press Start 2P</option>
+            </optgroup>
+            <optgroup label="— Klasik —">
+              <option value="Arial Black">Arial Black</option>
+              <option value="Arial">Arial</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="Crimson Pro">Crimson Pro</option>
+            </optgroup>
           </select>
         </div>
         <div class="control-group">
           <label>FONT NOMOR</label>
-          <select id="numFont">
-            <option value="Impact">Impact</option>
-            <option value="Arial Black">Arial Black</option>
-            <option value="Bebas Neue">Bebas Neue</option>
-            <option value="Arial">Arial</option>
-            <option value="Oswald">Oswald</option>
+          <select id="numFont" onchange="renderPreviewTemplate()">
+            <optgroup label="— Sport / Bold —">
+              <option value="Impact">Impact</option>
+              <option value="Bebas Neue">Bebas Neue</option>
+              <option value="Russo One">Russo One</option>
+              <option value="Barlow Condensed">Barlow Condensed</option>
+              <option value="Saira Condensed">Saira Condensed</option>
+              <option value="Squada One">Squada One</option>
+              <option value="Fjalla One">Fjalla One</option>
+              <option value="Teko">Teko</option>
+              <option value="Rajdhani">Rajdhani</option>
+              <option value="Kanit">Kanit</option>
+              <option value="Staatliches">Staatliches</option>
+              <option value="Titan One">Titan One</option>
+              <option value="Lilita One">Lilita One</option>
+              <option value="Tourney">Tourney</option>
+            </optgroup>
+            <optgroup label="— Tech / Futuristik —">
+              <option value="Orbitron">Orbitron</option>
+              <option value="Michroma">Michroma</option>
+              <option value="Oxanium">Oxanium</option>
+              <option value="Chakra Petch">Chakra Petch</option>
+              <option value="Exo 2">Exo 2</option>
+              <option value="Nova Square">Nova Square</option>
+              <option value="Iceberg">Iceberg</option>
+              <option value="Wallpoet">Wallpoet</option>
+              <option value="Play">Play</option>
+            </optgroup>
+            <optgroup label="— Modern / Clean —">
+              <option value="Montserrat">Montserrat</option>
+              <option value="Poppins">Poppins</option>
+              <option value="Raleway">Raleway</option>
+              <option value="Lato">Lato</option>
+              <option value="Barlow">Barlow</option>
+              <option value="Roboto Condensed">Roboto Condensed</option>
+              <option value="Oswald">Oswald</option>
+              <option value="Varela Round">Varela Round</option>
+              <option value="Unica One">Unica One</option>
+            </optgroup>
+            <optgroup label="— Display / Dekoratif —">
+              <option value="Lobster">Lobster</option>
+              <option value="Permanent Marker">Permanent Marker</option>
+              <option value="Boogaloo">Boogaloo</option>
+              <option value="Londrina Solid">Londrina Solid</option>
+              <option value="Lalezar">Lalezar</option>
+              <option value="Black Han Sans">Black Han Sans</option>
+              <option value="Gruppo">Gruppo</option>
+              <option value="Yatra One">Yatra One</option>
+              <option value="Press Start 2P">Press Start 2P</option>
+            </optgroup>
+            <optgroup label="— Klasik —">
+              <option value="Arial Black">Arial Black</option>
+              <option value="Arial">Arial</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="Crimson Pro">Crimson Pro</option>
+            </optgroup>
           </select>
         </div>
       </div>
@@ -1008,4 +1108,3 @@
 </script>
 </body>
 </html>
-
