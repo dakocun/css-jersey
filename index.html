@@ -561,7 +561,7 @@
         </div>
         <div class="control-group">
           <label>FONT NAMA</label>
-          <select id="nameFont" onchange="renderPreviewTemplate()">
+          <select id="nameFont">
             <optgroup label="— Sport / Bold —">
               <option value="Impact">Impact</option>
               <option value="Bebas Neue">Bebas Neue</option>
@@ -621,7 +621,7 @@
         </div>
         <div class="control-group">
           <label>FONT NOMOR</label>
-          <select id="numFont" onchange="renderPreviewTemplate()">
+          <select id="numFont">
             <optgroup label="— Sport / Bold —">
               <option value="Impact">Impact</option>
               <option value="Bebas Neue">Bebas Neue</option>
@@ -873,25 +873,43 @@
     const scale = cssW / 400;
 
     if (name) {
-      ctx.font = `bold ${Math.round(s.nameSz * scale)}px "${s.nameFont}", Impact, sans-serif`;
-      ctx.fillStyle = s.nameColor;
-      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
-      ctx.lineWidth = Math.max(1, s.nameSz * 0.05 * scale);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.strokeText(name.toUpperCase(), cssW * s.nameX / 100, cssH * s.nameY / 100);
-      ctx.fillText(name.toUpperCase(), cssW * s.nameX / 100, cssH * s.nameY / 100);
-    }
+      const nameFontStr = `bold ${Math.round(s.nameSz * scale)}px "${s.nameFont}", Impact, sans-serif`;
+      document.fonts.load(nameFontStr).then(() => {
+        ctx.font = nameFontStr;
+        ctx.fillStyle = s.nameColor;
+        ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+        ctx.lineWidth = Math.max(1, s.nameSz * 0.05 * scale);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.strokeText(name.toUpperCase(), cssW * s.nameX / 100, cssH * s.nameY / 100);
+        ctx.fillText(name.toUpperCase(), cssW * s.nameX / 100, cssH * s.nameY / 100);
 
-    if (number) {
-      ctx.font = `bold ${Math.round(s.numSz * scale)}px "${s.numFont}", Impact, sans-serif`;
-      ctx.fillStyle = s.numColor;
-      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
-      ctx.lineWidth = Math.max(1, s.numSz * 0.05 * scale);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.strokeText(String(number), cssW * s.numX / 100, cssH * s.numY / 100);
-      ctx.fillText(String(number), cssW * s.numX / 100, cssH * s.numY / 100);
+        if (number) {
+          const numFontStr = `bold ${Math.round(s.numSz * scale)}px "${s.numFont}", Impact, sans-serif`;
+          document.fonts.load(numFontStr).then(() => {
+            ctx.font = numFontStr;
+            ctx.fillStyle = s.numColor;
+            ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+            ctx.lineWidth = Math.max(1, s.numSz * 0.05 * scale);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.strokeText(String(number), cssW * s.numX / 100, cssH * s.numY / 100);
+            ctx.fillText(String(number), cssW * s.numX / 100, cssH * s.numY / 100);
+          });
+        }
+      });
+    } else if (number) {
+      const numFontStr = `bold ${Math.round(s.numSz * scale)}px "${s.numFont}", Impact, sans-serif`;
+      document.fonts.load(numFontStr).then(() => {
+        ctx.font = numFontStr;
+        ctx.fillStyle = s.numColor;
+        ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+        ctx.lineWidth = Math.max(1, s.numSz * 0.05 * scale);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.strokeText(String(number), cssW * s.numX / 100, cssH * s.numY / 100);
+        ctx.fillText(String(number), cssW * s.numX / 100, cssH * s.numY / 100);
+      });
     }
   }
 
@@ -912,7 +930,7 @@
     drawJersey(canvas, jerseyImg, 'NAMA', '10', getSettings());
   }
 
-  ['nameY','nameX','numY','numX','nameSz','numSz','nameColor','numColor','nameFont','numFont'].forEach(id => {
+  ['nameY','nameX','numY','numX','nameSz','numSz','nameColor','numColor'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     el.addEventListener('input', () => {
@@ -925,6 +943,21 @@
       if (id === 'numSz') { document.getElementById('numSzVal').textContent = v + 'px'; }
       if (jerseyImg) renderPreviewTemplate();
     });
+  });
+
+  // Font selects — pakai 'change', tunggu font load dulu sebelum render
+  document.getElementById('nameFont').addEventListener('change', () => {
+    if (!jerseyImg) return;
+    const font = document.getElementById('nameFont').value;
+    const sz = document.getElementById('nameSz').value;
+    document.fonts.load(`bold ${sz}px "${font}"`).then(() => renderPreviewTemplate());
+  });
+
+  document.getElementById('numFont').addEventListener('change', () => {
+    if (!jerseyImg) return;
+    const font = document.getElementById('numFont').value;
+    const sz = document.getElementById('numSz').value;
+    document.fonts.load(`bold ${sz}px "${font}"`).then(() => renderPreviewTemplate());
   });
 
   function getRows() {
